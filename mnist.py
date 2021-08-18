@@ -145,7 +145,7 @@ if __name__ == "__main__":
     global_score_deviation = score.std()
     print("TRAIN AUC: %0.2f (+- %0.2f)" % (global_score, global_score_deviation))
 
-    # NOTE: Perform cv scoring for every configuration, then compare scores, pick the best params and fit the final model:
+    # NOTE: Perform cv scoring for every configuration (and every estimator), then compare scores, pick the best params and fit the final model:
     model_svc = svm.SVC(C=.1, gamma=.01, kernel="linear")
     model_svc.fit(train_imgs, train_labels)
     """
