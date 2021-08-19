@@ -32,6 +32,15 @@ def loadPickle(path, verbose=True):
 def divRoundUp(dividend, divisor):
     return int(dividend // divisor + (dividend % divisor > 0))
 
+# Normalizes a given set of images by dividing by the its highest possible pixel value
+#   If not specified, divides by the highest pixel value across the whole set
+def normalizeImgSet(images, max_reference=False):
+    if not max_reference:
+        # Resolves max_reference from input tensor
+        max_reference = np.amax(images)
+
+    return images.astype(dtype=np.float32) / max_reference
+
 # Crops down an image given as a numpy tensor
 # The result is the smallest subtensor that perfectly fits the image content
 def cropImgToContent(image, verbose=False):
@@ -108,6 +117,22 @@ def fitImgToShape(image, shape, fitmode=FIT_IMG_MODE_PERFECT):
     return image
 
 if __name__ == "__main__":
+    # Dummy; tries normalizeImgSet method
+    dummy_uint8Img = np.array(
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 199, 233, 242, 255, 0, 0],
+            [0, 0, 0, 0, 0, 252, 0, 0],
+            [0, 0, 0, 0, 250, 0, 0, 0],
+            [0, 0, 0, 0, 251, 0, 0, 0],
+            [0, 0, 0, 247, 0, 0, 0, 0],
+            [0, 0, 0, 254, 0, 0, 0, 0],
+            [0, 0, 255, 0, 0, 0, 0, 0]
+        ]
+    )
+
+    dummy_normImg = normalizeImgSet(dummy_uint8Img, max_reference=255)
+    print("Dummy normalized: (%s):\n%s\n---" % (str(dummy_normImg.shape), str(dummy_normImg)))
     
     # Dummy; tries cropImgToContent method
     dummy_img = np.array(
