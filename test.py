@@ -33,4 +33,3 @@ if __name__ == "__main__":
     predicted = estimator.predict(test_X)
     report = metrics.classification_report(test_y, predicted)
     print("TEST Report of %s:\n%s" % (estimator, report))
-    print(predicted)

@@ -8,9 +8,12 @@ import sys
 from ms_common import normalizeImgSet, cropImgToContent, fitImgToShape
 from ms_common import dumpPickle, loadPickle
 from ms_common import FIT_IMG_MODE_PERFECT as FIT_PERFECT
+from ms_common import FIT_IMG_MODE_EXPAND as FIT_EXPAND
 
+# Configs
 SEMEION_IMG_SHAPE = (16, 16)
-TARGET_IMG_SHAPE = (28, 28)
+TARGET_IMG_SHAPE = (16, 16)
+FITMODE = FIT_EXPAND
 
 # Aux method: Transform a tensor of one-hot entries into a tensor of ints
 # ex: [[0, 0, 1, 0], [0, 1, 0, 0]] -> [2, 1]
@@ -23,7 +26,7 @@ def onehotToInt(oh_list):
     return int_tensor
 
 # Simple semeion loader. Expects a single data file path (d)
-def semeion_loader(d, flat=False):
+def semeion_loader(d):
     images = []
     labels = []
 
@@ -41,8 +44,7 @@ def semeion_loader(d, flat=False):
     images = np.array(images, dtype=np.float32).astype(dtype=np.uint8)
 
     # Reshapes images tensor. Each entry represents a 2D-image
-    if not flat:
-        images = np.reshape(images, (-1, *SEMEION_IMG_SHAPE))
+    images = np.reshape(images, (-1, *SEMEION_IMG_SHAPE))
 
     labels = onehotToInt(labels)
 
@@ -50,7 +52,7 @@ def semeion_loader(d, flat=False):
 
 # Semeion images preprocessing. Adapts dataset content and shape
 # Normalizes, crops and reshapes each image as required
-def semeion_proc(images, norm=True, crop=True, fit=FIT_PERFECT, shape=TARGET_IMG_SHAPE, flat=False, verbose=True):
+def semeion_proc(images, norm=True, crop=True, fit=FITMODE, shape=TARGET_IMG_SHAPE, flat=False, verbose=True):
     if norm:
         images = normalizeImgSet(images, max_reference=1)
 
@@ -63,7 +65,7 @@ def semeion_proc(images, norm=True, crop=True, fit=FIT_PERFECT, shape=TARGET_IMG
         if crop:
             im = cropImgToContent(im)
 
-        im_fitReshape = fitImgToShape(im, TARGET_IMG_SHAPE, FIT_PERFECT)
+        im_fitReshape = fitImgToShape(im, shape, fit)
         proc_images.append(im_fitReshape)
 
     if verbose:
@@ -111,12 +113,15 @@ if __name__ == "__main__":
     datapath = str(pl.Path(datapath).joinpath("semeion.data"))
 
     # Parses sets
-    images, labels = semeion_loader(datapath, flat=False)
+    print("Parsing SEMEION set...")
+    images, labels = semeion_loader(datapath)
 
     # Image preprocessing: Normalizes image set, crops content, reshapes and flattens
-    images = semeion_proc(images, flat=False)
+    print("Preprocessing images...")
+    images = semeion_proc(images, norm=True, crop=True, flat=True)
 
-    # Saves resulting images and labels objects (pickle
+    # Saves resulting images and labels objects (pickle)
+    print("Saving preprocessed data...")
     dumpPickle(images, "images", opath)
     dumpPickle(labels, "labels", opath)
 
@@ -140,3 +145,5 @@ if __name__ == "__main__":
     #       * Create Train/test splits
     #       * Preprocess both, the mnist and semeion sets to enhance model compatibility (play with cropImgToContent and fitImgToShape)
     """
+
+    print("All done! :D")

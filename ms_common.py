@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 # Globals
 FIT_IMG_MODE_PERFECT = 0
 FIT_IMG_MODE_EXPAND = 1
+IMG_SHAPE = (28, 28)
 
 # Stores an object as a byte stream (pickle)
 def dumpPickle(object, name, path, verbose=True):
